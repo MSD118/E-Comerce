@@ -23,3 +23,23 @@ export type Controller = (
 ) => void
 
 export type Errors = object | null | undefined | string | unknown
+
+// Helper functions
+export const getPaginationData = (
+  count: number,
+  per_page: number,
+  current_page: number
+) => {
+  const total_pages = per_page ? Math.ceil(count / per_page) : 1
+  return {
+    count,
+    per_page: per_page || count,
+    total_pages,
+    previous_page: current_page > 1 ? current_page - 1 : null,
+    current_page,
+    next_page: current_page < total_pages ? current_page + 1 : null,
+    first_page: current_page === 1,
+    last_page: current_page === total_pages,
+    out_of_range: current_page > total_pages,
+  }
+}
