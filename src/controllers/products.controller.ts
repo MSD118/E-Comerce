@@ -17,6 +17,22 @@ export const createProduct: Controller = async (request, response) => {
   response.status(200).json(product)
 }
 
+export const createProducts: Controller = async (request, response) => {
+  const products = request.body.map((product: product) => {
+    return {
+      ...product,
+      tags: product.tags.join(','),
+    }
+  })
+  try {
+    await prismaClient.product.createMany({ data: products })
+
+    response.status(200).json({ message: 'Products created' })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 export const updateProduct: Controller = async (request, response) => {
   try {
     const product = request.body

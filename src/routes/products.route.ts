@@ -1,5 +1,11 @@
 import { Router } from 'express'
-import { createProduct, deleteProduct, updateProduct } from '../controllers/products.controller'
+import {
+  createProduct,
+  createProducts,
+  deleteProduct,
+  listProducts,
+  updateProduct,
+} from '../controllers/products.controller'
 import { ErrorHandler } from '../error-handler'
 import { authMiddleware } from '../middlewares/auth.middleware'
 import { adminMiddleware } from '../middlewares/admin.middleware'
@@ -10,6 +16,12 @@ productsRoutes.post(
   '/',
   [authMiddleware, adminMiddleware],
   ErrorHandler(createProduct)
+)
+
+productsRoutes.post(
+  '/many',
+  [authMiddleware, adminMiddleware],
+  ErrorHandler(createProducts)
 )
 
 productsRoutes.put(

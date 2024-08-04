@@ -24,6 +24,14 @@ export type Controller = (
 
 export type Errors = object | null | undefined | string | unknown
 
+export type product = {
+  id: number
+  name: string
+  description: string
+  price: number
+  tags: string[]
+}
+
 // Helper functions
 export const getPaginationData = (
   count: number,
