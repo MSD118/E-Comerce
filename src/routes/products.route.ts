@@ -35,3 +35,9 @@ productsRoutes.delete(
   [authMiddleware, adminMiddleware],
   ErrorHandler(deleteProduct)
 )
+
+productsRoutes.get(
+  '/',
+  [authMiddleware, adminMiddleware],
+  ErrorHandler(listProducts)
+)

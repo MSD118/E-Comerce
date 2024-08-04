@@ -1,10 +1,6 @@
-import { Controller, ErrorCode } from '../common'
+import { Controller, ErrorCode, getPaginationData, product } from '../common'
 import { prismaClient } from '..'
 import { NotFoundException } from '../exceptions/not-found'
-
-// ['tea', 'india'] => 'tea,india'
-
-// Create a validator for this request
 
 export const createProduct: Controller = async (request, response) => {
   const product = await prismaClient.product.create({
@@ -52,15 +48,41 @@ export const updateProduct: Controller = async (request, response) => {
 }
 
 export const deleteProduct: Controller = async (request, response) => {
-  const deleteProduct = await prismaClient.product.delete({
-    where: {
-      id: Number(request.params.id),
-    },
-  })
+  try {
+    const deleteProduct = await prismaClient.product.delete({
+      where: {
+        id: Number(request.params.id),
+      },
+    })
 
-  response.status(200).json({ message: 'Product Deleted', deleteProduct })
+    response.status(200).json({
+      message: 'Product Deleted',
+      product: {
+        id: deleteProduct.id,
+      },
+    })
+  } catch (error) {
+    throw new NotFoundException('Product not found', ErrorCode.NOT_FOUND)
+  }
 }
 
-// export const listProducts: Controller = async (request, response) => {}
+export const listProducts: Controller = async (request, response) => {
+  const count = await prismaClient.product.count()
+  const per_page = request.query.per_page ? Number(request.query.per_page) : 0
+  const current_page = request.query.page ? Number(request.query.page) : 1
+
+  const products = await prismaClient.product.findMany({
+    orderBy: {
+      price: 'asc',
+    },
+    skip: (current_page - 1) * per_page,
+    ...(per_page ? { take: per_page } : {}),
+  })
+
+  response.status(200).json({
+    pagination: getPaginationData(count, per_page, current_page),
+    products,
+  })
+}
 
 // export const getProductByID: Controller = async (request, response) => {}
