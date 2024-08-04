@@ -8,6 +8,7 @@ export enum ErrorCode {
   UNPROCESSABLE_ENTITY = 1003,
   INTERNAL_EXCEPTION = 1004,
   UNAUTHORIZED = 1005,
+  NOT_FOUND = 1006,
 }
 
 export type jwtPayload = {

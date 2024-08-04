@@ -1,5 +1,6 @@
-import { Controller } from '../common';
-import { prismaClient } from '..';
+import { Controller, ErrorCode } from '../common'
+import { prismaClient } from '..'
+import { NotFoundException } from '../exceptions/not-found'
 
 // ['tea', 'india'] => 'tea,india'
 
@@ -11,24 +12,39 @@ export const createProduct: Controller = async (request, response) => {
       ...request.body,
       tags: request.body.tags.join(','),
     },
-  });
+  })
 
-  response.status(200).json(product);
-};
-
+  response.status(200).json(product)
+}
 
 export const updateProduct: Controller = async (request, response) => {
-
+  try {
+    const product = request.body
+    if (product.tags) {
+      product.tags = product.tags.join(',')
+    }
+    const updateProduct = await prismaClient.product.update({
+      where: {
+        id: Number(request.params.id),
+      },
+      data: product,
+    })
+    response.status(200).json(updateProduct)
+  } catch (error) {
+    throw new NotFoundException('Product not found', ErrorCode.NOT_FOUND)
+  }
 }
 
 export const deleteProduct: Controller = async (request, response) => {
+  const deleteProduct = await prismaClient.product.delete({
+    where: {
+      id: Number(request.params.id),
+    },
+  })
 
+  response.status(200).json({ message: 'Product Deleted', deleteProduct })
 }
 
-export const listProducts: Controller = async (request, response) => {
+// export const listProducts: Controller = async (request, response) => {}
 
-}
-
-export const getProductByID: Controller = async (request, response) => {
-
-}
+// export const getProductByID: Controller = async (request, response) => {}

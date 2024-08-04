@@ -1,13 +1,25 @@
-import { Router } from 'express';
-import { createProduct } from '../controllers/products.controller';
-import { ErrorHandler } from '../error-handler';
-import { authMiddleware } from '../middlewares/auth.middleware';
-import { adminMiddleware } from '../middlewares/admin.middleware';
+import { Router } from 'express'
+import { createProduct, deleteProduct, updateProduct } from '../controllers/products.controller'
+import { ErrorHandler } from '../error-handler'
+import { authMiddleware } from '../middlewares/auth.middleware'
+import { adminMiddleware } from '../middlewares/admin.middleware'
 
-export const productsRoutes: Router = Router();
+export const productsRoutes: Router = Router()
 
 productsRoutes.post(
   '/',
   [authMiddleware, adminMiddleware],
   ErrorHandler(createProduct)
-);
+)
+
+productsRoutes.put(
+  '/:id',
+  [authMiddleware, adminMiddleware],
+  ErrorHandler(updateProduct)
+)
+
+productsRoutes.delete(
+  '/:id',
+  [authMiddleware, adminMiddleware],
+  ErrorHandler(deleteProduct)
+)
