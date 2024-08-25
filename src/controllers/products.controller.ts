@@ -68,15 +68,24 @@ export const deleteProduct: Controller = async (request, response) => {
 
 export const listProducts: Controller = async (request, response) => {
   const count = await prismaClient.product.count()
+
   const per_page = request.query.per_page ? Number(request.query.per_page) : 0
   const current_page = request.query.page ? Number(request.query.page) : 1
 
+  const sort = request.query.sort ? String(request.query.sort) : 'id:asc'
+  const [column, direction] = sort.split(':')
+
   const products = await prismaClient.product.findMany({
     orderBy: {
-      price: 'asc',
+      [column]: direction,
     },
     skip: (current_page - 1) * per_page,
     ...(per_page ? { take: per_page } : {}),
+    where: {
+      price: {
+        gte: 10,
+      },
+    },
   })
 
   response.status(200).json({
