@@ -1,4 +1,10 @@
-import { Controller, ErrorCode, getPaginationData, product } from '../common'
+import {
+  Controller,
+  ErrorCode,
+  getFilters,
+  getPaginationData,
+  product,
+} from '../common'
 import { prismaClient } from '..'
 import { NotFoundException } from '../exceptions/not-found'
 
@@ -67,25 +73,22 @@ export const deleteProduct: Controller = async (request, response) => {
 }
 
 export const listProducts: Controller = async (request, response) => {
-  const count = await prismaClient.product.count()
-
   const per_page = request.query.per_page ? Number(request.query.per_page) : 0
   const current_page = request.query.page ? Number(request.query.page) : 1
 
   const sort = request.query.sort ? String(request.query.sort) : 'id:asc'
   const [column, direction] = sort.split(':')
 
+  const filters = request.query.filter ? String(request.query.filter) : ''
+
+  const count = await prismaClient.product.count()
   const products = await prismaClient.product.findMany({
     orderBy: {
       [column]: direction,
     },
     skip: (current_page - 1) * per_page,
     ...(per_page ? { take: per_page } : {}),
-    where: {
-      price: {
-        gte: 10,
-      },
-    },
+    where: { ...getFilters(filters) },
   })
 
   response.status(200).json({

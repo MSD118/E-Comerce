@@ -51,3 +51,26 @@ export const getPaginationData = (
     out_of_range: current_page > total_pages,
   }
 }
+
+export const getFilters = (filters: string) => {
+  const filtersArray = filters.slice(1, -1).split(',')
+  const filterObject = new Map()
+
+  filtersArray.forEach((filter) => {
+    const [column, condition, value] = filter.trim().split(':')
+
+    if (column && condition && value) {
+      filterObject.set(column, {
+        [condition]: Number(value),
+      })
+    }
+  })
+
+  return Object.fromEntries(filterObject)
+}
+
+export const getTypeInfo = <T>() => {
+  return (key: keyof T): string => {
+    return typeof ({} as T)[key]
+  }
+}
