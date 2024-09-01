@@ -81,20 +81,40 @@ export const listProducts: Controller = async (request, response) => {
 
   const filters = request.query.filter ? String(request.query.filter) : ''
 
-  const count = await prismaClient.product.count()
+  const search = request.query.search ? String(request.query.search) : ''
+
   const products = await prismaClient.product.findMany({
     orderBy: {
       [column]: direction,
     },
     skip: (current_page - 1) * per_page,
     ...(per_page ? { take: per_page } : {}),
-    where: { ...getFilters(filters) },
+    where: {
+      ...getFilters(filters),
+      OR: [
+        {
+          name: {
+            contains: search,
+          },
+        },
+        {
+          description: {
+            contains: search,
+          },
+        },
+        {
+          tags: {
+            contains: search,
+          },
+        },
+      ],
+    },
   })
+
+  const count = products.length
 
   response.status(200).json({
     pagination: getPaginationData(count, per_page, current_page),
-    products,
+    data: { products },
   })
 }
-
-// export const getProductByID: Controller = async (request, response) => {}
