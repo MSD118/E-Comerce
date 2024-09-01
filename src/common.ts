@@ -54,19 +54,29 @@ export const getPaginationData = (
 
 export const getFilters = (filters: string) => {
   const filtersArray = filters.slice(1, -1).split(',')
-  const filterObject = new Map()
+  const filterMap = new Map()
 
   filtersArray.forEach((filter) => {
-    const [column, condition, value] = filter.trim().split(':')
+    const [column, condition, value] = filter.split(':').map((s) => s.trim())
 
     if (column && condition && value) {
-      filterObject.set(column, {
-        [condition]: Number(value),
-      })
+      if (filterMap.has(column)) {
+        const currentValue = filterMap.get(column)
+        filterMap.set(column, {
+          ...currentValue,
+          [condition]: Number(value),
+        })
+      } else {
+        filterMap.set(column, {
+          [condition]: Number(value),
+        })
+      }
+    } else {
+      console.error('Invalid filter')
     }
   })
 
-  return Object.fromEntries(filterObject)
+  return Object.fromEntries(filterMap)
 }
 
 export const getTypeInfo = <T>() => {
